@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Trelloo - Trello For Alfred</title>
+	<style>
+		body {
+			margin: 0;
+			font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+			font-size: 14px;
+			line-height: 20px;
+			color: #333;
+			background-color: #FFF;
+		}
+
+		h1{
+			margin: 10px 0;
+			font-family: inherit;
+			font-weight: bold;
+			color: inherit;
+			line-height: 40px;
+			font-size: 38px;
+		}
+
+		p {
+			margin: 0 0 10px;
+		}
+
+		a {
+			color: #08C;
+			text-decoration: none;
+		}
+
+		a:hover{
+			text-decoration: underline;
+		}
+
+		.lead {
+			margin-bottom: 30px;
+			margin-top: 30px;
+			font-size: 22px;
+			font-weight: 200;
+			line-height: 30px;
+		}
+
+		.container {
+		    width: 680px;
+			margin: 0 auto;
+		}
+
+		.container:before, .container:after {
+			display: table;
+			line-height: 0;
+			content: "";
+		}
+		.container:after {
+			clear: both;
+		}
+
+		.header {
+			padding-bottom: 9px;
+			margin: 100px 0 40px 0;
+			border-bottom: 1px solid #EEE;
+		}
+
+		.output .lead {
+		    font-size: 18px;
+		    color: green;
+		}
+
+	</style>
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script src="https://api.trello.com/1/client.js?key=11fd2e941a9487e3eca443262ecc98c0"></script>
+</head>
+<body>
+
+<!-- 
+http://jsfiddle.net/nNesx/
+-->
+
+<div id="wrap">
+
+  <div class="container">
+    <div class="header">
+      <h1>Trelloo </h1>
+    </div>
+
+    <p class="lead"> Some Alias for Trello With Alfred Workflow </p>
+
+    <p id="c" class="lead">
+    	<a href="javascript:;" id="connect">Authorize me</a>
+    </p>
+
+	<div id="output" class="output">
+		<p>
+			Your Token is <strong class=" lead" id="token"></strong>
+		</p>	
+        <p>
+        	Logged in to as <em id="name"></em>... 
+        </p>
+
+        <p>
+    		<a id="disconnect" href="javascript:;">Deauthorize </a>	
+        </p>
+	</div>
+  </div>
+
+</div>
+
+<script>
+	
+$(function(){
+
+	var onAuthorize = function() {
+	    updateLoggedIn();
+		$('#token').html( Trello.token());
+	    
+	    Trello.members.get("me", function(member){
+	        $("#name").text(member.fullName);
+	    });
+	};
+
+	var updateLoggedIn = function() {
+	    var isLoggedIn = Trello.authorized();
+		$('#c').toggle(!isLoggedIn);
+		$('#output').toggle(isLoggedIn);
+	};
+	    
+	var logout = function() {
+	    Trello.deauthorize();
+	    updateLoggedIn();
+	};
+	                          
+	Trello.authorize({
+	    interactive:false,  
+	    success: onAuthorize
+	});
+
+	updateLoggedIn();
+
+	$("#connect").click(function(){
+	    Trello.authorize({
+	        type: "popup",
+	        success: onAuthorize,
+	        name: 'Trelloo',
+	        scope: {
+	        	read: true, write: true, account: true	
+	        },
+	        expiration: 'never'
+	    })
+	});
+	    
+	$("#disconnect").click(logout);
+});
+
+</script>
+	
+</body>
+</html>
