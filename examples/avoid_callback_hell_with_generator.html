@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generator 解决嵌套问题</title>
+</head>
+<body>
+<script>
+ 
+var callback = null;
+
+function next(generator) {
+  return function(err, data){
+    if (err) {
+      throw err;
+    }
+    generator.next(data)   
+  }
+}
+
+function start(generator) {
+  var actor = generator();
+  callback = next(actor);
+  actor.next();
+}
+
+function* task(){
+
+  console.log('task lauching');
+
+  var result1 = yield asyncf1(callback);
+  console.log('asyncf1 result: ', result1);
+
+  var result2 = yield asyncf2(callback);
+  console.log('asyncf2 result: ', result2);
+
+  console.log('task done');
+}
+
+function asyncf1(cb) {
+  setTimeout(function() {
+    var result = 1;
+    cb(null, result);
+  }, 1e3)
+}
+
+function asyncf2(cb) {
+  setTimeout(function() {
+    var result = 2;
+    cb(null, result);
+  }, 1e3)
+}
+
+start(task);
+</script>
+</body>
+</html>
